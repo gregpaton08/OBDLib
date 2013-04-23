@@ -6,6 +6,7 @@
 //
 //
 
+#include <SD.h>
 
 #define OBD_RECV_BUF_SIZE 48
 #define OBD_BAUDRATE 38400
@@ -13,7 +14,7 @@
 class OBDLib {
 public:
     OBDLib();
-    bool init();
+    bool init(File &file);
     void sendCMD(uint8_t mode, uint8_t pid);
     bool getResultForPid(float &res, uint8_t mode, uint8_t pid);
     float pidToDec(uint8_t pid, char *res);

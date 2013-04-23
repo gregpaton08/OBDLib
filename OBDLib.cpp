@@ -26,32 +26,47 @@ OBDLib::OBDLib() {
  * \author Greg Paton
  * \date 3/6/2013
  */
-bool OBDLib::init() {
+bool OBDLib::init(File &file) {
     
     // initialize mode01Pids
-    for (uint8_t i = 0; i < 160; ++i) {
-        mode01Pids[i] = false;
-    }
+//    for (uint8_t i = 0; i < 160; ++i) {
+//        mode01Pids[i] = false;
+//    }
+    
+    // wait for prompt
+    while (false == Serial.find(">"));
     
     // set up ELM327
     // reset
-    Serial.write("ATZ\r\n");
+    Serial.write("ATZ\r");
+    while (false == Serial.findUntil("ELM327", "?"));
     while (false == Serial.find(">"));
-    // turn spaces off
-    Serial.write("ATS0\r\n");
-    while (false == Serial.find(">"));
-    // turn line feeds off
-    Serial.write("ATL0\r\n");
-    while (false == Serial.find(">"));
+    
     // turn echo off
-    Serial.write("ATE0\r\n");
+    Serial.write("ATE0\r");
+    while (false == Serial.findUntil("OK", "?"));
     while (false == Serial.find(">"));
+    
+    // turn spaces off
+    Serial.write("ATS0\r");
+    while (false == Serial.findUntil("OK", "?"));
+    while (false == Serial.find(">"));
+    
+    // turn line feeds off
+    Serial.write("ATL0\r");
+    while (false == Serial.findUntil("OK", "?"));
+    while (false == Serial.find(">"));
+    
     // set timeout to 152ms
-    Serial.write("ATST26\r\n");
+    Serial.write("ATST26\r");
+    while (false == Serial.findUntil("OK", "?"));
     while (false == Serial.find(">"));
+    
     // aggressive adaptive timeout
-    Serial.write("ATAT2\r\n");
+    Serial.write("ATAT2\r");
+    while (false == Serial.findUntil("OK", "?"));
     while (false == Serial.find(">"));
+    
     
     return true;
 }
@@ -68,7 +83,7 @@ bool OBDLib::init() {
  */
 void OBDLib::sendCMD(uint8_t mode, uint8_t pid) {
 	char cmd[8];
-	sprintf(cmd, "%02X%02X 1\r", mode, pid);
+	sprintf(cmd, "%02X%02X1\r", mode, pid);
 	Serial.write(cmd);
 }
 
@@ -129,7 +144,7 @@ float OBDLib::pidToDec(uint8_t pid, char *res) {
         case 0x0C:
             return hex2uint16(res) / 4.0;
             break;
-        // Speed
+        // Speed (MPH)
         case 0x0D:
             return hex2uint8(res) * 0.621371;
             break;
