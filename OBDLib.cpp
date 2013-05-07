@@ -31,10 +31,9 @@ bool OBDLib::init(File &file) {
     // initialize mode01Pids
 //    for (uint8_t i = 0; i < 160; ++i) {
 //        mode01Pids[i] = false;
-//    }
+    //    }
     
-    // wait for prompt
-    while (false == Serial.find(">"));
+    while (Serial.read() != -1);
     
     // set up ELM327
     // reset
